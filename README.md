@@ -60,13 +60,18 @@ HAVING ProductSubcategoryName IN ('Helmets','Jerseys','Socks');
 -- Выводим информацию только для продуктов категорий 'Helmets','Jerseys','Socks'
 ```
 
-### Выборка показывающая самый дорогой и самый дешевый товар в каждой категории сделать rollup с количеством товаров по категориям ###
+### Выборка показывающая самый дорогой и самый дешевый товар (их цену)в каждой категории сделать rollup с количеством товаров по категориям ###
 ```sql
 SELECT d.Name AS ProductSubcategoryName,
-       a.Name AS ProductName,
+       CASE
+         WHEN (GROUPING(a.Name)=1) THEN 'MIN/MAX price'
+         ELSE a.Name
+       END AS ProductName,
        MIN(c.TotalDue) AS MINTotalDue,
        MAX(c.TotalDue) AS MAXTotalDue,
-       count(*) AS count
+       count(*) AS count,
+       GROUPING(d.Name) AS grouping_ProductSubcategoryName,
+       GROUPING(a.Name) AS grouping_ProductName
        FROM product a
 LEFT JOIN salesorderdetail b
 ON a.ProductID = b.Productid
